@@ -34,7 +34,7 @@ For the demo dataset, we have a pre-trained model for the mouse retina, please d
 ```
 library(SAVERX)
 saverx("./testdata/shekhar_downsampled.csv", data.species = "Mouse", 
-use.pretrain = T, pretrained.weights.file = "./mouse_retina.hdf5", model.species = "")
+use.pretrain = T, pretrained.weights.file = "./mouse_retina.hdf5", model.species = "Mouse")
 ```
 
 For both cases, you will find the final results in './testdata/shekhar_downsampled_denoised.rds'.
