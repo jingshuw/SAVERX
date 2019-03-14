@@ -15,3 +15,7 @@ Next, open R and install the R package SAVERX
 library(devtools)
 install_github("jingshuw/SAVERX")
 ```
+
+## Basic Usage
+
+Our current pre-trained models can be downloaded [here](https://www.dropbox.com/sh/4u22cfuswcfcwvu/AAC6Cgs07dvQSNInTF0wWMDva?dl=0)
