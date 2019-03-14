@@ -51,9 +51,10 @@ computeShrinkage <- function(text.file.name, ncores = 1) {
 	saveRDS(x.autoencoder.saver, temp.name)
   print(paste("Final denoised results saved as:", temp.name))
 
-	file.remove(gsub(format, "_prediction.rds", text.file.name), showWarnings = F)
-	file.remove(gsub(format, "_other_species_prediction.rds", text.file.name), showWarnings = F)
-	file.remove(gsub(format, ".rds", text.file.name), showWarnings = F)
+	try(file.remove(gsub(format, "_prediction.rds", text.file.name)), silent = T)
+  if (file.exists(gsub(format, "_other_species_prediction.rds", text.file.name)))
+	  file.remove(gsub(format, "_other_species_prediction.rds", text.file.name))
+	try(file.remove(gsub(format, ".rds", text.file.name)), silent = T)
 	if (format == ".rds")
 		try(system(paste("mv", gsub(".rds", "_original.rds", text.file.name), text.file.name)), silent = T)
 	try(file.remove(paste0(out_dir, "/weights.hdf5")), silent = T)
