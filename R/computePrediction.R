@@ -22,6 +22,11 @@ computePrediction <- function(text.file.name,
 	if (format != ".txt" && format != ".csv" && format != ".rds")
 		stop("Input file must be in .txt or .csv or .rds form", call.=FALSE)
 	print(paste("Input file is:", text.file.name))
+  if (use.pretrain)
+    temp <- "Yes"
+  else
+    temp <- "No"
+  print(paste("Use a pretrained model", temp))
 	
 	data.species <- match.arg(data.species, c("Human", "Mouse", "Others"))
   if (use.pretrain)
