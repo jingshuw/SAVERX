@@ -33,8 +33,7 @@ saverx("./testdata/shekhar_downsampled.csv")
 For the demo dataset, we have a pre-trained model for the mouse retina, please download the file, mouse_Retina.hdf5, and you may save it in './mouse_retina.hdf5'
 ```
 library(SAVERX)
-saverx("./testdata/shekhar_downsampled.csv", data.species = "Mouse", 
-	   use.pretrain = T, pretrained.weights.file = "./mouse_retina.hdf5", model.species = "")
+saverx("./testdata/shekhar_downsampled.csv", data.species = "Mouse", use.pretrain = T, pretrained.weights.file = "./mouse_retina.hdf5", model.species = "")
 ```
 
 For both cases, you will find the final results in './testdata/shekhar_downsampled_denoised.rds'.
