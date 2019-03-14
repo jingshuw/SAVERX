@@ -10,7 +10,7 @@ autoencode(x, python.module, main, test.x = NULL, pretrain_file = "",
   batch_size = 32L, ...)
 }
 \arguments{
-\item{x}{Target data matrix of gene by cell. When pretraining is used, the genes should be the same as the nodes used in the pretrained model. If a node gene is missing is the target dataset, set all values of that gene as 0 in \code{x} and indicate that using \code{nonmissing_indicator}}
+\item{x}{Target sparse data matrix of gene by cell. When pretraining is used, the genes should be the same as the nodes used in the pretrained model. If a node gene is missing is the target dataset, set all values of that gene as 0 in \code{x} and indicate that using \code{nonmissing_indicator}}
 
 \item{python.module}{The python module for the Python package \code{sctransfer}}
 

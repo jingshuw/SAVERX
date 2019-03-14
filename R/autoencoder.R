@@ -1,6 +1,6 @@
 #' R interface for the autoencode python function
 #'
-#' @param x Target data matrix of gene by cell. When pretraining is used, the genes should be the same as the nodes used in the pretrained model. If a node gene is missing is the target dataset, set all values of that gene as 0 in \code{x} and indicate that using \code{nonmissing_indicator}
+#' @param x Target sparse data matrix of gene by cell. When pretraining is used, the genes should be the same as the nodes used in the pretrained model. If a node gene is missing is the target dataset, set all values of that gene as 0 in \code{x} and indicate that using \code{nonmissing_indicator}
 #' @param python.module The python module for the Python package \code{sctransfer}
 #' @param main A Python main module
 #' @param nonmissing_indicator A single value 1 or a vector of 0 and 1s to indicate which nodes are missing in the target dataset. Set to 1 for no pretraining.
@@ -42,19 +42,22 @@ autoencode <- function(x,
 
   gnames <- rownames(x)
   cnames <- colnames(x)
-  x <- api$anndata$AnnData(t(x))
-  main$x <- x
+  x <- Matrix::Matrix(x, sparse = T)
+  mtx_file <- paste0(out_dir, "/SAVERX_temp.mtx")
+  Matrix::writeMM(x, file = mtx_file)
+ # x <- api$anndata$AnnData(t(x))
+ # main$x <- x
   nonmissing_indicator <- api$np$asarray(nonmissing_indicator) 
 
   if (!is.null(test.x)) {
     gnames <- rownames(test.x)
     cnames <- colnames(test.x)
-    test.x <- api$anndata$AnnData(t(test.x))
+    test.x <- api$anndata$AnnData(t(as.matrix(test.x)))
     main$test_x <- test.x
   }
 
   if (!pretrain)
-    main$result <- api$autoencode(adata = x,
+    main$result <- api$autoencode(mtx_file = mtx_file,
                                   pred_adata = test.x,
                                   nonmissing_indicator = nonmissing_indicator,                      
                                   out_dir = out_dir,
@@ -64,7 +67,8 @@ autoencode <- function(x,
     main$result <- api$autoencode(n_inoutnodes_human=n_human,
                                   n_inoutnodes_mouse=n_mouse,
                                   shared_size=shared_size,
-                                  adata = x,
+                                 # adata = x,
+                                  mtx_file = mtx_file,
                                   pred_adata = test.x, 
                                   species=model.species,
                                   nonmissing_indicator = nonmissing_indicator, 
@@ -77,7 +81,7 @@ autoencode <- function(x,
   colnames(x.autoencoder) <- cnames
   rownames(x.autoencoder) <- gnames
   reticulate::py_run_string("
-del result,x
+del result
 import gc
 gc.collect()")
   return(x.autoencoder)

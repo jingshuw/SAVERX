@@ -28,7 +28,7 @@ computePrediction <- function(text.file.name,
     temp <- "Yes"
   else
     temp <- "No"
-  print(paste("Use a pretrained model", temp))
+  print(paste("Use a pretrained model:", temp))
 	
 	data.species <- match.arg(data.species, c("Human", "Mouse", "Others"))
   if (use.pretrain)
@@ -81,7 +81,6 @@ computePrediction <- function(text.file.name,
 	### run autoencoder ###
 	if (use.pretrain) {
 		x <- Matrix::readMM(gsub(format, ".mtx", text.file.name))
-		x <- as.matrix(x)
 		nonmissing_indicator <- read.table(gsub(format, "_nonmissing.txt", text.file.name))$V1
 		batch.size <- as.integer(max(ncol(x) / 50, 32))
 		used.time <- system.time(result <- autoFilterCV(x, 
@@ -118,17 +117,16 @@ computePrediction <- function(text.file.name,
 		err.const <- rep(NA, nrow(data$mat))
 		err.autoencoder[idx] <- result$err.autoencoder[ID.use[idx]]
 		err.const[idx] <- result$err.const[ID.use[idx]]
-		file.remove(gsub(format, "_nonmissing.txt", text.file.name))
-		file.remove(gsub(format, ".mtx", text.file.name))
-		result$x.autoencoder <- est.mu
-		result$err.autoencoder <- err.autoencoder
+		try(file.remove(gsub(format, "_nonmissing.txt", text.file.name)))
+		try(file.remove(gsub(format, ".mtx", text.file.name)))
+    result$x.autoencoder <- est.mu
+    result$err.autoencoder <- err.autoencoder
 		result$err.const <- err.const
 	} else {
 		data <- readRDS(gsub(format, ".rds", text.file.name))
 
-		x <- as.matrix(data$mat)
-		batch.size <- as.integer(max(ncol(x) / 50, 32))
-		used.time <- system.time(result <- autoFilterCV(x, 
+		batch.size <- as.integer(max(ncol(data$mat) / 50, 32))
+		used.time <- system.time(result <- autoFilterCV(data$mat, 
 												 sctransfer, 
 												 main,
 												 out_dir = out_dir, 
@@ -140,6 +138,8 @@ computePrediction <- function(text.file.name,
 		print(paste("Number of predictive genes is", sum(result$err.const > result$err.autoencoder)))
 
 	}
+  try(file.remove(paste0(out_dir, "/SAVERX_temp.mtx")))
+
 
 	if (!use.pretrain || data.species == model.species) {
     temp.name <- gsub(format, "_prediction.rds", text.file.name)
@@ -151,10 +151,12 @@ computePrediction <- function(text.file.name,
     print(paste("Predicted + filtered results saved as:", temp.name))
 	}
 
-  reticulate::py_run_string("
+  if (clearup.python) {
+    reticulate::py_run_string("
 import sys
 sys.modules[__name__].__dict__.clear()")
-  print("Python module cleared up.")
+    print("Python module cleared up.")
+  }
 }
 
 
