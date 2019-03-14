@@ -13,7 +13,7 @@ autoFilterCV(x, python.module, main, pretrain_file = "",
 \arguments{
 \item{x}{Target data matrix of gene by cell. When pretraining is used, the genes should be the same as the nodes used in the pretrained model. If a node gene is missing is the target dataset, set all values of that gene as 0 in \code{x} and indicate that using \code{nonmissing_indicator}}
 
-\item{python.module}{The python module for the Python package \code{transferdca}}
+\item{python.module}{The python module for the Python package \code{sctransfer}}
 
 \item{main}{A Python main module}
 
@@ -27,7 +27,7 @@ autoFilterCV(x, python.module, main, pretrain_file = "",
 
 \item{samp}{Number of sampled folds taken to reduce CV time cost}
 
-\item{...}{Extra parameters passed to Python module \code{transferdca} function \code{api} (if no pretraining) or function \code{api_pretrain} (with pretraining).}
+\item{...}{Extra parameters passed to Python module \code{sctransfer} function \code{api} (if no pretraining) or function \code{api_pretrain} (with pretraining).}
 }
 \value{
 a list of the filtered predicted data matrix and the CV error

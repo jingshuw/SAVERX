@@ -7,7 +7,7 @@
 computePrediction(text.file.name, data.species = c("Human", "Mouse",
   "Others"), use.pretrain = F, pretrained.weights.file = "",
   model.species = c("Human", "Mouse", "Joint"), model.nodes.ID = NULL,
-  save.ori = T, ...)
+  save.ori = T, clearup.python = T, ...)
 }
 \arguments{
 \item{text.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell. The rds file can either store the data as a regular matrix or a sparse matrix}
@@ -16,13 +16,15 @@ computePrediction(text.file.name, data.species = c("Human", "Mouse",
 
 \item{use.pretrain}{Use a pretrained model or not}
 
-\item{pretrained.weights.file}{If a pretrained model is used, provide the file storing the autoencoder model weights. It should have an extension of ".hdf5" and is the saved weights from the Python package \code{transferdca}}
+\item{pretrained.weights.file}{If a pretrained model is used, provide the file storing the autoencoder model weights. It should have an extension of ".hdf5" and is the saved weights from the Python package \code{sctransfer}}
 
 \item{model.species}{The species of the pretrained model}
 
 \item{model.nodes.ID}{The vector of node IDs of the pretrained model (only needed for the species of the data when the pre-trained model is joint). Set to NULL if running SAVER-X without pretraining.}
 
 \item{save.ori}{Whether save the original.file.name to a new file}
+
+\item{clearup.python}{Whether to clear up everything in the Python session after computation or not}
 
 \item{...}{more arguments passed to \code{autoFilterCV}}
 }

@@ -4,6 +4,7 @@
 #' @param use.pretrain Use a pretrained model or not
 #' @param pretrained.weights.file If a pretrained model is used, provide the file storing the autoencoder model weights. It should have an extension of ".hdf5" and is the saved weights from the Python package \code{sctransfer}
 #' @param save.ori Whether save the original.file.name to a new file
+#' @param clearup.python Whether to clear up everything in the Python session after computation or not
 #' @param ... more arguments passed to \code{autoFilterCV}
 #' 
 #' @return RDS file saved for the autoencoder prediction + filtering result
@@ -15,6 +16,7 @@ computePrediction <- function(text.file.name,
 							  model.species = c("Human", "Mouse", "Joint"),
 							  model.nodes.ID = NULL, 
 							  save.ori = T,
+                clearup.python = T,
 							  ...) {
 	### inpute checking  ###
 	format <- strsplit(text.file.name, '[.]')[[1]]

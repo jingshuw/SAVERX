@@ -16,7 +16,7 @@ saverx(text.file.name, data.species = c("Human", "Mouse", "Others"),
 
 \item{use.pretrain}{Use a pretrained model or not}
 
-\item{pretrained.weights.file}{If a pretrained model is used, provide the file storing the autoencoder model weights. It should have an extension of ".hdf5" and is the saved weights from the Python package \code{transferdca}}
+\item{pretrained.weights.file}{If a pretrained model is used, provide the file storing the autoencoder model weights. It should have an extension of ".hdf5" and is the saved weights from the Python package \code{sctransfer}}
 
 \item{model.species}{The species of the pretrained model}
 
