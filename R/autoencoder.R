@@ -45,6 +45,7 @@ autoencode <- function(x,
   x <- Matrix::Matrix(x, sparse = T)
   mtx_file <- paste0(out_dir, "/SAVERX_temp.mtx")
   Matrix::writeMM(x, file = mtx_file)
+  rm(x)
  # x <- api$anndata$AnnData(t(x))
  # main$x <- x
   nonmissing_indicator <- api$np$asarray(nonmissing_indicator) 
