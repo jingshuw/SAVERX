@@ -61,7 +61,8 @@ autoencode <- function(x,
     gc()
  #   test.x <- api$anndata$AnnData(t(as.matrix(test.x)))
  #   main$test_x <- test.x
-  }
+  } else
+    test_mtx_file <- NULL
 
   if (!pretrain)
     main$result <- api$autoencode(mtx_file = mtx_file,
