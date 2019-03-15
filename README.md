@@ -20,6 +20,7 @@ install_github("jingshuw/SAVERX")
 
 Our current pre-trained models can be downloaded [here](https://www.dropbox.com/sh/4u22cfuswcfcwvu/AAC6CgsO7dvQSNInTF0wWMDva?dl=0)
 
+Our input can be '.txt', '.csv' or '.rds' file. The '.rds' file can store either a matrix or a sparse matrix of class 'dgCMatrix'. 
 As a toy example, you may download one of our demo datasets on the web server, shekhar_downsampled.csv, the down-sampled mouse retina data from [here](https://www.dropbox.com/sh/kctbw41kdh6jmnb/AAAO5Icu97Ep6uoWFdHRKIcMa?dl=0). Say you have saved the file in a folder './testdata/'. As SAVER-X will generate intemediate files in the same folder as the input dataset during the computation, please make sure that only one SAVER-X task is running on the folder. 
 
 ### SAVER-X without pretraining
