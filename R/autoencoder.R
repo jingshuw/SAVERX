@@ -49,17 +49,23 @@ autoencode <- function(x,
  # x <- api$anndata$AnnData(t(x))
  # main$x <- x
   nonmissing_indicator <- api$np$asarray(nonmissing_indicator) 
+  gc()
 
   if (!is.null(test.x)) {
     gnames <- rownames(test.x)
     cnames <- colnames(test.x)
-    test.x <- api$anndata$AnnData(t(as.matrix(test.x)))
-    main$test_x <- test.x
+    test.x <- Matrix::Matrix(test.x, sparse = T)
+    test_mtx_file <- paste0(out_dir, "/SAVERX_temp_test.mtx")
+    Matrix::writeMM(test.x, file = test_mtx_file)
+    rm(test.x)
+    gc()
+ #   test.x <- api$anndata$AnnData(t(as.matrix(test.x)))
+ #   main$test_x <- test.x
   }
 
   if (!pretrain)
     main$result <- api$autoencode(mtx_file = mtx_file,
-                                  pred_adata = test.x,
+                                  pred_mtx_file = test_mtx_file,
                                   nonmissing_indicator = nonmissing_indicator,                      
                                   out_dir = out_dir,
                                   batch_size = batch_size, 
@@ -70,7 +76,7 @@ autoencode <- function(x,
                                   shared_size=shared_size,
                                  # adata = x,
                                   mtx_file = mtx_file,
-                                  pred_adata = test.x, 
+                                  pred_mtx_file = test_mtx_file, 
                                   species=model.species,
                                   nonmissing_indicator = nonmissing_indicator, 
                                   initial_file = pretrain_file, 
