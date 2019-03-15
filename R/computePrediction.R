@@ -139,6 +139,8 @@ computePrediction <- function(text.file.name,
 
 	}
   try(file.remove(paste0(out_dir, "/SAVERX_temp.mtx")))
+  try(file.remove(paste0(out_dir, "/SAVERX_temp_test.mtx")))
+
 
 
 	if (!use.pretrain || data.species == model.species) {
