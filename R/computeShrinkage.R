@@ -20,7 +20,7 @@ computeShrinkage <- function(text.file.name, ncores = 1) {
 	######
 
 	### preprocess data ###
-	data <- readRDS(gsub(format, ".rds", text.file.name))
+	data <- readRDS(gsub(format, "_temp.rds", text.file.name))
 	result <- readRDS(gsub(format, "_prediction.rds", text.file.name))
 	est.mu <- result$x.autoencoder
 	pred <- result$err.const > result$err.autoencoder
@@ -54,9 +54,7 @@ computeShrinkage <- function(text.file.name, ncores = 1) {
 	try(file.remove(gsub(format, "_prediction.rds", text.file.name)), silent = T)
   if (file.exists(gsub(format, "_other_species_prediction.rds", text.file.name)))
 	  file.remove(gsub(format, "_other_species_prediction.rds", text.file.name))
-	try(file.remove(gsub(format, ".rds", text.file.name)), silent = T)
-	if (format == ".rds")
-		try(system(paste("mv", gsub(".rds", "_original.rds", text.file.name), text.file.name)), silent = T)
+	try(file.remove(gsub(format, "_temp.rds", text.file.name)), silent = T)
 	try(file.remove(paste0(out_dir, "/weights.hdf5")), silent = T)
   print("Intermediate files removed. Finished!!")
 	######

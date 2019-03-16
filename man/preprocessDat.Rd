@@ -6,7 +6,7 @@
 \usage{
 preprocessDat(text.file.name, data.species = c("Human", "Mouse",
   "Others"), model.species = c("Human", "Mouse", "Joint"),
-  model.nodes.ID = NULL, save.ori = T)
+  model.nodes.ID = NULL)
 }
 \arguments{
 \item{text.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell. The rds file can either store the data as a regular matrix or a sparse matrix}
@@ -16,8 +16,6 @@ preprocessDat(text.file.name, data.species = c("Human", "Mouse",
 \item{model.species}{The species of the pretrained model}
 
 \item{model.nodes.ID}{The vector of node IDs of the pretrained model (only needed for the species of the data when the pre-trained model is joint). Set to NULL if running SAVER-X without pretraining.}
-
-\item{save.ori}{Save a copy of the original \code{text.file.name} or not}
 }
 \value{
 Do not return anything but generate a series of intermediate files in the same folder as \code{text.file.name}

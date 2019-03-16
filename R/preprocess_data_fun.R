@@ -6,7 +6,6 @@
 #' @param data.species The species of the dataset
 #' @param model.species The species of the pretrained model
 #' @param model.nodes.ID The vector of node IDs of the pretrained model (only needed for the species of the data when the pre-trained model is joint). Set to NULL if running SAVER-X without pretraining.
-#' @param save.ori Save a copy of the original \code{text.file.name} or not 
 #' 
 #' @return Do not return anything but generate a series of intermediate files in the same folder as \code{text.file.name}
 #'
@@ -14,8 +13,7 @@
 preprocessDat <- function(text.file.name,
                           data.species = c("Human", "Mouse", "Others"),
                           model.species = c("Human", "Mouse", "Joint"),
-                          model.nodes.ID = NULL,
-						  save.ori = T) {
+                          model.nodes.ID = NULL) {
 
   data.species <- match.arg(data.species, c("Human", "Mouse", "Others"))
   model.species <- match.arg(model.species, c("Human", "Mouse", "Joint"))
@@ -35,11 +33,6 @@ preprocessDat <- function(text.file.name,
     dat <- Matrix::Matrix(as.matrix(read.csv(text.file.name, row.names = 1)), sparse = T)
   } else { 
     dat <- readRDS(text.file.name)
-  	if (save.ori) {
-      temp.name <- gsub(".rds", "_original.rds", text.file.name)
-		  system(paste("cp", text.file.name, temp.name))
-      print(paste("Original file saved temporarily as:", temp.name))
-    }
 	  if (is.list(dat))
       dat <- dat$mat
     dat <- Matrix::Matrix(dat, sparse = T)
@@ -48,7 +41,7 @@ preprocessDat <- function(text.file.name,
 
   if (is.null(model.nodes.ID)) {
     dat <- list(mat = dat)
-    temp.name <- gsub(format, ".rds", text.file.name)
+    temp.name <- gsub(format, "_temp.rds", text.file.name)
     saveRDS(dat, file = temp.name)
     print(paste("Processed file saved as:", temp.name))
   } else {
@@ -74,7 +67,7 @@ preprocessDat <- function(text.file.name,
 
     print(paste(sum(!is.na(result$internal.ID)), "genes mapped out of", nrow(dat$mat)))
 
-    temp.name <- gsub(format, ".rds", text.file.name)
+    temp.name <- gsub(format, "_temp.rds", text.file.name)
     saveRDS(dat, temp.name)
     print(paste("Gene names mapped, resulting file saved as:", temp.name))
 

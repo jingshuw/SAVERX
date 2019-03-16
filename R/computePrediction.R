@@ -15,7 +15,6 @@ computePrediction <- function(text.file.name,
 							  pretrained.weights.file = "",
 							  model.species = c("Human", "Mouse", "Joint"),
 							  model.nodes.ID = NULL, 
-							  save.ori = T,
                 clearup.python = T,
 							  ...) {
 	### inpute checking  ###
@@ -67,8 +66,7 @@ computePrediction <- function(text.file.name,
 	preprocessDat(text.file.name, 
 				  data.species = data.species, 
 				  model.species = model.species, 
-				  model.nodes.ID = model.nodes.ID, 
-				  save.ori = save.ori)
+				  model.nodes.ID = model.nodes.ID)
 	
 
 	out_dir <- strsplit(text.file.name, split = "/")[[1]]
@@ -96,7 +94,7 @@ computePrediction <- function(text.file.name,
 		idx <- nonmissing_indicator == 1
 		print(paste("Number of predictive genes is", sum(result$err.const[idx] > result$err.autoencoder[idx])))
 
-		data <- readRDS(gsub(format, ".rds", text.file.name))
+		data <- readRDS(gsub(format, "_temp.rds", text.file.name))
 
 		est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(data$mat) / Matrix::colSums(data$mat)) * 10000)
 		est.mu <- est.mu %*% t(rep(1, ncol(data$mat)))
@@ -123,7 +121,7 @@ computePrediction <- function(text.file.name,
     result$err.autoencoder <- err.autoencoder
 		result$err.const <- err.const
 	} else {
-		data <- readRDS(gsub(format, ".rds", text.file.name))
+		data <- readRDS(gsub(format, "_temp.rds", text.file.name))
 
 		batch.size <- as.integer(max(ncol(data$mat) / 50, 32))
 		used.time <- system.time(result <- autoFilterCV(data$mat, 
@@ -136,7 +134,6 @@ computePrediction <- function(text.file.name,
 		est.mu <- result$x.autoencoder
 
 		print(paste("Number of predictive genes is", sum(result$err.const > result$err.autoencoder)))
-
 	}
   try(file.remove(paste0(out_dir, "/SAVERX_temp.mtx")))
   try(file.remove(paste0(out_dir, "/SAVERX_temp_test.mtx")))
