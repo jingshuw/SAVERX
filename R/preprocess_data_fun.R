@@ -91,7 +91,7 @@ preprocessDat <- function(text.file.name,
 
     dat.node.idx <- node.idx[rownames(mat1)] - 1
 
-    if ("j" %in% slotNames(mat1))
+    if ("j" %in% methods::slotNames(mat1))
       mat <- Matrix::sparseMatrix(i = dat.node.idx[mat1@i+ 1], 
                           j = mat1@j, x = mat1@x, dims = c(length(model.nodes.ID), ncol(mat1)),
                           index1 = F)
