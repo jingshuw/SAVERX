@@ -15,7 +15,7 @@ saverx <- function(text.file.name,
 				   model.nodes.ID = NULL,
            is.large.data = F,
 				   ncores = 1, 
-           verbose = F, ...) {
+           verbose = F, batch_size = NULL, ...) {
 	
   clearup.python <- T
 	if (use.pretrain) {
@@ -30,7 +30,7 @@ saverx <- function(text.file.name,
   computePrediction(text.file.name, data.species,
                     use.pretrain, pretrained.weights.file,
 					  model.species, model.nodes.ID, verbose = verbose,
-            is.large.data = is.large.data,
+            is.large.data = is.large.data, batch_size = batch_size,
             clearup.python = clearup.python, ...)
 
 
@@ -38,6 +38,7 @@ saverx <- function(text.file.name,
     print("For cross-species training, compute another round with no pre-pretraining model ...")
     computePrediction(text.file.name, data.species, 
                       use.pretrain = F, save.ori = F, verbose = verbose, 
+                      batch_size = batch_size, 
                       is.large.data = is.large.data, ...)
   }		
 

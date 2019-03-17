@@ -7,7 +7,8 @@
 saverx(text.file.name, data.species = c("Human", "Mouse", "Others"),
   use.pretrain = F, pretrained.weights.file = "",
   model.species = c("Human", "Mouse", "Joint"), model.nodes.ID = NULL,
-  is.large.data = F, ncores = 1, verbose = F, ...)
+  is.large.data = F, ncores = 1, verbose = F, batch_size = NULL,
+  ...)
 }
 \arguments{
 \item{text.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell. The rds file can either store the data as a regular matrix or a sparse matrix}
@@ -27,6 +28,8 @@ saverx(text.file.name, data.species = c("Human", "Mouse", "Others"),
 \item{ncores}{number of cores that can be used for the SAVER shrinkage}
 
 \item{verbose}{Whether to show more autoencoder optimization progress or not}
+
+\item{batch_size}{batch size of the autoencoder. Default is NULL, where the batch size is automatically determined by \code{max(number of cells / 50, 32)}}
 
 \item{...}{more arguments passed to \code{autoFilterCV}}
 }

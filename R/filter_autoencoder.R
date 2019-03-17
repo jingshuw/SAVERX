@@ -99,7 +99,7 @@ autoFilterCV <- function(x,
   if (write_output_to_tsv) {
     x.autoencoder <- t(as.matrix(data.table::fread(paste0(out_dir, 
                                                         "/SAVERX_temp_mean_norm.tsv"), header = F)))
-    rownames(x.autoencoder) <- rnames
+    rownames(x.autoencoder) <- gnames
     colnames(x.autoencoder) <- cnames
   }
   

@@ -7,6 +7,7 @@
 #' @param clearup.python Whether to clear up everything in the Python session after computation or not
 #' @param ... more arguments passed to \code{autoFilterCV}
 #' @param is.large.data If the data is very large, it may take too much RAM and setting this parameter to True can reduce RAM by writing intermediate Python ouput files to disk instead of directly passing it to R. However, setting this to True can increase the computation time
+#' @param batch_size batch size of the autoencoder. Default is NULL, where the batch size is automatically determined by \code{max(number of cells / 50, 32)}
 #' 
 #' @return RDS file saved for the autoencoder prediction + filtering result
 #' @export
@@ -18,6 +19,7 @@ computePrediction <- function(text.file.name,
 							  model.nodes.ID = NULL,
                 is.large.data = F,
                 clearup.python = T,
+                batch_size = NULL,
 							  ...) {
 	### inpute checking  ###
 	format <- strsplit(text.file.name, '[.]')[[1]]
@@ -83,20 +85,25 @@ computePrediction <- function(text.file.name,
     write_output_to_tsv <- T
   else
     write_output_to_tsv <- F
+
 	if (use.pretrain) {
 		x <- Matrix::readMM(gsub(format, ".mtx", text.file.name))
+    if (is.null(batch_size))
+      batch_size <- as.integer(max(ncol(x) / 50, 32))
+    else
+      batch_size <- as.integer(batch_size)
+
 		nonmissing_indicator <- read.table(gsub(format, "_nonmissing.txt", text.file.name))$V1
-		batch.size <- as.integer(max(ncol(x) / 50, 32))
-		used.time <- system.time(result <- autoFilterCV(x, 
-												 sctransfer,
-												 main,
-												 pretrain_file = pretrained.weights.file,
-												 nonmissing_indicator = nonmissing_indicator, 
-												 model.species = model.species, 
-												 out_dir = out_dir,
-                         batch_size = batch.size,
-                         write_output_to_tsv = write_output_to_tsv,
-												 ...))
+    used.time <- system.time(result <- autoFilterCV(x, 
+                                                    sctransfer,
+                                                    main,
+                                                    pretrain_file = pretrained.weights.file,
+                                                    nonmissing_indicator = nonmissing_indicator, 
+                                                    model.species = model.species, 
+                                                    out_dir = out_dir,
+                                                    batch_size = batch_size,
+                                                    write_output_to_tsv = write_output_to_tsv,
+                                                    ...))
 		print(paste("Autoencoder total computing time is:", used.time[3], "seconds"))
 
 		idx <- nonmissing_indicator == 1
@@ -130,13 +137,16 @@ computePrediction <- function(text.file.name,
 		result$err.const <- err.const
 	} else {
 		data <- readRDS(gsub(format, "_temp.rds", text.file.name))
+    if (is.null(batch_size))
+      batch_size <- as.integer(max(ncol(data$mat) / 50, 32))
+    else
+      batch_size <- as.integer(batch_size)
 
-		batch.size <- as.integer(max(ncol(data$mat) / 50, 32))
 		used.time <- system.time(result <- autoFilterCV(data$mat, 
 												 sctransfer, 
 												 main,
 												 out_dir = out_dir,
-                         batch_size = batch.size,
+                         batch_size = batch_size,
                          write_output_to_tsv = write_output_to_tsv, 
 												 ...))
 
