@@ -7,7 +7,7 @@
 autoencode(x, python.module, main, test.x = NULL, pretrain_file = "",
   nonmissing_indicator = 1, n_human = 21183L, n_mouse = 21122L,
   shared_size = 15494L, model.species = NULL, out_dir = ".",
-  batch_size = 32L, ...)
+  batch_size = 32L, write_output_to_tsv = F, ...)
 }
 \arguments{
 \item{x}{Target sparse data matrix of gene by cell. When pretraining is used, the genes should be the same as the nodes used in the pretrained model. If a node gene is missing is the target dataset, set all values of that gene as 0 in \code{x} and indicate that using \code{nonmissing_indicator}}
@@ -23,6 +23,8 @@ autoencode(x, python.module, main, test.x = NULL, pretrain_file = "",
 \item{nonmissing_indicator}{A single value 1 or a vector of 0 and 1s to indicate which nodes are missing in the target dataset. Set to 1 for no pretraining.}
 
 \item{model.species}{Should be either 'Human' or 'Mouse' when pretraining is used}
+
+\item{write_output_to_tsv}{If True, then the result of Python is written as .tsv files instead of passing back to R. Default is False.}
 
 \item{...}{Extra parameters passed to Python module \code{sctransfer} function \code{api} (if no pretraining) or function \code{api_pretrain} (with pretraining).}
 }

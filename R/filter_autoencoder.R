@@ -20,6 +20,7 @@ autoFilterCV <- function(x,
                          model.species = NULL,
                          out_dir = ".",
                          batch_size = 32L,
+                         write_output_to_tsv = F,
                          fold = 6, samp = 3, epsilon = 1e-10, seed = 1, ...) {
 
   set.seed(seed)
@@ -51,7 +52,14 @@ autoFilterCV <- function(x,
                                 shared_size,
                                 model.species,
                                 out_dir,
-                                batch_size, verbose_sum = F, verbose_fit = 0L, ...)
+                                batch_size, 
+                                write_output_to_tsv,
+                                verbose_sum = F, verbose_fit = 0L, ...)
+
+    if (write_output_to_tsv) {
+      x.autoencoder <- t(as.matrix(data.table::fread(paste0(out_dir, 
+                                                          "/SAVERX_temp_pred_mean_norm.tsv"), header = F)))
+    }
                  
     est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(x[, train.idx]) / Matrix::colSums(x[, train.idx])) * 10000)
     est.autoencoder <- Matrix::t(Matrix::t(x.autoencoder) * Matrix::colSums(x.test)) / 10000 
@@ -64,7 +72,12 @@ autoFilterCV <- function(x,
     rm(x.test, x.autoencoder, est.mu, est.autoencoder, est.const, err1, err2)
     gc()
   }
-  
+
+  est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(x) / Matrix::colSums(x)) * 10000)
+  est.const <- est.mu %*% t(rep(1, n.cell))
+  gnames <- rownames(x)
+  cnames <- colnames(x)
+
   print("Final prediction round using all cells. See below the summary of the autoencoder model:")
   x.autoencoder <- autoencode(x,  
                               python.module,
@@ -77,13 +90,19 @@ autoFilterCV <- function(x,
                               shared_size,
                               model.species,
                               out_dir,
-                              batch_size, verbose_fit = 0L, ...)
+                              batch_size, 
+                              write_output_to_tsv, 
+                              verbose_fit = 0L, ...)
+  rm(x)
+  gc()
 
-
-
-  est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(x) / Matrix::colSums(x)) * 10000)
-  est.const <- est.mu %*% t(rep(1, n.cell))
-
+  if (write_output_to_tsv) {
+    x.autoencoder <- t(as.matrix(data.table::fread(paste0(out_dir, 
+                                                        "/SAVERX_temp_mean_norm.tsv"), header = F)))
+    rownames(x.autoencoder) <- rnames
+    colnames(x.autoencoder) <- cnames
+  }
+  
   x.autoencoder[err.autoencoder - err.const > 0, ] <- est.const[err.autoencoder - err.const > 0, ]
 
 

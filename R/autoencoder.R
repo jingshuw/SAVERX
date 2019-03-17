@@ -8,6 +8,7 @@
 #' @param pretrain_file The pretrained weights file ended with '.hdf5'
 #' @param  model.species Should be either 'Human' or 'Mouse' when pretraining is used
 #' @param ... Extra parameters passed to Python module \code{sctransfer} function \code{api} (if no pretraining) or function \code{api_pretrain} (with pretraining).
+#' @param write_output_to_tsv If True, then the result of Python is written as .tsv files instead of passing back to R. Default is False.
 #'
 #' @return A data matrix for the Python autoencoder result 
 #'
@@ -27,6 +28,7 @@ autoencode <- function(x,
                        model.species = NULL,
                        out_dir = ".",
                        batch_size = 32L,
+                       write_output_to_tsv = F,
                        ...) {
 
   if (pretrain_file == "")
@@ -70,6 +72,7 @@ autoencode <- function(x,
                                   nonmissing_indicator = nonmissing_indicator,                      
                                   out_dir = out_dir,
                                   batch_size = batch_size, 
+                                  write_output_to_tsv = write_output_to_tsv,
                                   ...)
   else
     main$result <- api$autoencode(n_inoutnodes_human=n_human,
@@ -83,11 +86,14 @@ autoencode <- function(x,
                                   initial_file = pretrain_file, 
                                   out_dir = out_dir,
                                   batch_size = batch_size,
+                                  write_output_to_tsv = write_output_to_tsv, 
                                   ...)
-
-  x.autoencoder <- t(reticulate::py_to_r(main$result$obsm[['X_dca']]))
-  colnames(x.autoencoder) <- cnames
-  rownames(x.autoencoder) <- gnames
+  if (!write_output_to_tsv) {
+    x.autoencoder <- t(reticulate::py_to_r(main$result$obsm[['X_dca']]))
+    colnames(x.autoencoder) <- cnames
+    rownames(x.autoencoder) <- gnames
+  } else
+    x.autoencoder <- NULL
   reticulate::py_run_string("
 del result
 import gc

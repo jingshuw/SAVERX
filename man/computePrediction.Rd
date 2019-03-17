@@ -7,7 +7,7 @@
 computePrediction(text.file.name, data.species = c("Human", "Mouse",
   "Others"), use.pretrain = F, pretrained.weights.file = "",
   model.species = c("Human", "Mouse", "Joint"), model.nodes.ID = NULL,
-  clearup.python = T, ...)
+  is.large.data = F, clearup.python = T, ...)
 }
 \arguments{
 \item{text.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell. The rds file can either store the data as a regular matrix or a sparse matrix}
@@ -21,6 +21,8 @@ computePrediction(text.file.name, data.species = c("Human", "Mouse",
 \item{model.species}{The species of the pretrained model}
 
 \item{model.nodes.ID}{The vector of node IDs of the pretrained model (only needed for the species of the data when the pre-trained model is joint). Set to NULL if running SAVER-X without pretraining.}
+
+\item{is.large.data}{If the data is very large, it may take too much RAM and setting this parameter to True can reduce RAM by writing intermediate Python ouput files to disk instead of directly passing it to R. However, setting this to True can increase the computation time}
 
 \item{clearup.python}{Whether to clear up everything in the Python session after computation or not}
 

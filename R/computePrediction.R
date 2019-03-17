@@ -6,6 +6,7 @@
 #' @param save.ori Whether save the original.file.name to a new file
 #' @param clearup.python Whether to clear up everything in the Python session after computation or not
 #' @param ... more arguments passed to \code{autoFilterCV}
+#' @param is.large.data If the data is very large, it may take too much RAM and setting this parameter to True can reduce RAM by writing intermediate Python ouput files to disk instead of directly passing it to R. However, setting this to True can increase the computation time
 #' 
 #' @return RDS file saved for the autoencoder prediction + filtering result
 #' @export
@@ -14,7 +15,8 @@ computePrediction <- function(text.file.name,
 							  use.pretrain = F,
 							  pretrained.weights.file = "",
 							  model.species = c("Human", "Mouse", "Joint"),
-							  model.nodes.ID = NULL, 
+							  model.nodes.ID = NULL,
+                is.large.data = F,
                 clearup.python = T,
 							  ...) {
 	### inpute checking  ###
@@ -77,6 +79,10 @@ computePrediction <- function(text.file.name,
 	######
 
 	### run autoencoder ###
+  if (is.large.data)
+    write_output_to_tsv <- T
+  else
+    write_output_to_tsv <- F
 	if (use.pretrain) {
 		x <- Matrix::readMM(gsub(format, ".mtx", text.file.name))
 		nonmissing_indicator <- read.table(gsub(format, "_nonmissing.txt", text.file.name))$V1
@@ -88,6 +94,8 @@ computePrediction <- function(text.file.name,
 												 nonmissing_indicator = nonmissing_indicator, 
 												 model.species = model.species, 
 												 out_dir = out_dir,
+                         batch_size = batch.size,
+                         write_output_to_tsv = write_output_to_tsv,
 												 ...))
 		print(paste("Autoencoder total computing time is:", used.time[3], "seconds"))
 
@@ -127,7 +135,9 @@ computePrediction <- function(text.file.name,
 		used.time <- system.time(result <- autoFilterCV(data$mat, 
 												 sctransfer, 
 												 main,
-												 out_dir = out_dir, 
+												 out_dir = out_dir,
+                         batch_size = batch.size,
+                         write_output_to_tsv = write_output_to_tsv, 
 												 ...))
 
 		print(paste("Autoencoder total computing time is:", used.time[3], "seconds"))
@@ -137,6 +147,13 @@ computePrediction <- function(text.file.name,
 	}
   try(file.remove(paste0(out_dir, "/SAVERX_temp.mtx")))
   try(file.remove(paste0(out_dir, "/SAVERX_temp_test.mtx")))
+  if (is.large.data) {
+    try(file.remove(paste0(out_dir, "/SAVERX_temp_mean_norm.tsv")))
+    try(file.remove(paste0(out_dir, "/SAVERX_temp_pred_mean_norm.tsv")))
+    if (!use.pretrain)
+      try(file.remove(paste0(out_dir, "/SAVERX_temp_dispersion.tsv")))
+  }
+
 
 
 

@@ -13,6 +13,7 @@ saverx <- function(text.file.name,
 				   pretrained.weights.file = "",
 				   model.species = c("Human", "Mouse", "Joint"),
 				   model.nodes.ID = NULL,
+           is.large.data = F,
 				   ncores = 1, 
            verbose = F, ...) {
 	
@@ -28,14 +29,16 @@ saverx <- function(text.file.name,
 
   computePrediction(text.file.name, data.species,
                     use.pretrain, pretrained.weights.file,
-					  model.species, model.nodes.ID, verbose = verbose, 
+					  model.species, model.nodes.ID, verbose = verbose,
+            is.large.data = is.large.data,
             clearup.python = clearup.python, ...)
 
 
   if (use.pretrain && (data.species != model.species)) {
     print("For cross-species training, compute another round with no pre-pretraining model ...")
     computePrediction(text.file.name, data.species, 
-                      use.pretrain = F, save.ori = F, verbose = verbose, ...)
+                      use.pretrain = F, save.ori = F, verbose = verbose, 
+                      is.large.data = is.large.data, ...)
   }		
 
 
