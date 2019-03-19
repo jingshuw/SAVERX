@@ -63,18 +63,20 @@ autoFilterCV <- function(x,
                  
     est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(x[, train.idx]) / Matrix::colSums(x[, train.idx])) * 10000)
     est.autoencoder <- Matrix::t(Matrix::t(x.autoencoder) * Matrix::colSums(x.test)) / 10000 
+    rm(x.autoencoder)
+    gc()
     est.const <- est.mu %*% Matrix::t(Matrix::colSums(x.test)) / 10000
     err1 <- -Matrix::rowMeans(x.test * log(est.autoencoder + epsilon) - est.autoencoder)
     err2 <- -Matrix::rowMeans(x.test * log(est.const + epsilon) - est.const)
     
     err.autoencoder <- err.autoencoder + err1
     err.const <- err.const + err2
-    rm(x.test, x.autoencoder, est.mu, est.autoencoder, est.const, err1, err2)
+    rm(x.test, est.mu, est.autoencoder, est.const, err1, err2)
     gc()
   }
 
   est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(x) / Matrix::colSums(x)) * 10000)
-  est.const <- est.mu %*% t(rep(1, n.cell))
+#  est.const <- est.mu %*% t(rep(1, n.cell))
   gnames <- rownames(x)
   cnames <- colnames(x)
 
@@ -103,7 +105,7 @@ autoFilterCV <- function(x,
     colnames(x.autoencoder) <- cnames
   }
   
-  x.autoencoder[err.autoencoder - err.const > 0, ] <- est.const[err.autoencoder - err.const > 0, ]
+  x.autoencoder[err.autoencoder - err.const > 0, ] <- est.mu[err.autoencoder - err.const > 0]
 
 
   return(list(x.autoencoder = x.autoencoder, 

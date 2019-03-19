@@ -87,6 +87,23 @@ computePrediction <- function(text.file.name,
     write_output_to_tsv <- F
 
 	if (use.pretrain) {
+
+    data <- readRDS(gsub(format, "_temp.rds", text.file.name))
+
+    est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(data$mat) / Matrix::colSums(data$mat)) * 10000)
+
+    n.genes <- nrow(data$mat)
+    err.autoencoder <- rep(NA, n.genes)
+    err.const <- rep(NA, n.genes)
+    n.cells <- ncol(data$mat)
+
+    if (data.species == model.species)
+      ID.use <- data$rowdata$internal_ID
+    else
+      ID.use <- data$rowdata$other_species_internal_ID
+    rm(data)
+    gc()
+
 		x <- Matrix::readMM(gsub(format, ".mtx", text.file.name))
     if (is.null(batch_size))
       batch_size <- as.integer(max(ncol(x) / 50, 32))
@@ -109,30 +126,33 @@ computePrediction <- function(text.file.name,
 		idx <- nonmissing_indicator == 1
 		print(paste("Number of predictive genes is", sum(result$err.const[idx] > result$err.autoencoder[idx])))
 
-		data <- readRDS(gsub(format, "_temp.rds", text.file.name))
-
-		est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(data$mat) / Matrix::colSums(data$mat)) * 10000)
-		est.mu <- est.mu %*% t(rep(1, ncol(data$mat)))
-
-		rownames(result$x.autoencoder) <- model.nodes.ID
-
-		if (data.species == model.species)
-			ID.use <- data$rowdata$internal_ID
-		else
-			ID.use <- data$rowdata$other_species_internal_ID
+		
 		temp <- table(ID.use)
 		id.not.unique <- names(temp[temp > 1])
 
-		idx <- ID.use %in% model.nodes.ID[nonmissing_indicator == 1]
-		est.mu[idx, ] <- result$x.autoencoder[ID.use[idx], ]
+
+#		est.mu <- est.mu %*% t(rep(1, n.cells))
+
+		rownames(result$x.autoencoder) <- model.nodes.ID
+
 		names(result$err.autoencoder) <- names(result$err.const) <- rownames(result$x.autoencoder)
-		err.autoencoder <- rep(NA, nrow(data$mat))
-		err.const <- rep(NA, nrow(data$mat))
+
+		idx <- ID.use %in% model.nodes.ID[nonmissing_indicator == 1]
+    result$x.autoencoder <- result$x.autoencoder[ID.use[idx], ]
+    rownames(result$x.autoencoder) <- names(est.mu)[idx]
+    tt <- est.mu[!idx] %*% t(rep(1, n.cells))
+    rownames(tt) <- names(est.mu)[!idx]
+    result$x.autoencoder <- rbind(result$x.autoencoder, tt)
+    rm(tt)
+    gc()
+    result$x.autoencoder <- result$x.autoencoder[names(est.mu), , drop = F]
+
+#		est.mu[idx, ] <- result$x.autoencoder[ID.use[idx], ]
 		err.autoencoder[idx] <- result$err.autoencoder[ID.use[idx]]
-		err.const[idx] <- result$err.const[ID.use[idx]]
+    err.const[idx] <- result$err.const[ID.use[idx]]
 		try(file.remove(gsub(format, "_nonmissing.txt", text.file.name)))
 		try(file.remove(gsub(format, ".mtx", text.file.name)))
-    result$x.autoencoder <- est.mu
+ #   result$x.autoencoder <- est.mu
     result$err.autoencoder <- err.autoencoder
 		result$err.const <- err.const
 	} else {
@@ -149,11 +169,30 @@ computePrediction <- function(text.file.name,
                          batch_size = batch_size,
                          write_output_to_tsv = write_output_to_tsv, 
 												 ...))
+    rm(data)
+    gc()
 
 		print(paste("Autoencoder total computing time is:", used.time[3], "seconds"))
-		est.mu <- result$x.autoencoder
 
 		print(paste("Number of predictive genes is", sum(result$err.const > result$err.autoencoder)))
+	}
+
+  if (clearup.python) {
+    reticulate::py_run_string("
+import sys
+sys.modules[__name__].__dict__.clear()")
+    print("Python module cleared up.")
+  }
+
+  
+  if (!use.pretrain || data.species == model.species) {
+    temp.name <- gsub(format, "_prediction.rds", text.file.name)
+		saveRDS(result, file = temp.name)
+    print(paste("Predicted + filtered results saved as:", temp.name))
+	} else {
+    temp.name <- gsub(format, "_other_species_prediction.rds", text.file.name)
+		saveRDS(result, file = temp.name)
+    print(paste("Predicted + filtered results saved as:", temp.name))
 	}
   try(file.remove(paste0(out_dir, "/SAVERX_temp.mtx")))
   try(file.remove(paste0(out_dir, "/SAVERX_temp_test.mtx")))
@@ -164,25 +203,6 @@ computePrediction <- function(text.file.name,
       try(file.remove(paste0(out_dir, "/SAVERX_temp_dispersion.tsv")))
   }
 
-
-
-
-	if (!use.pretrain || data.species == model.species) {
-    temp.name <- gsub(format, "_prediction.rds", text.file.name)
-		saveRDS(result, file = temp.name)
-    print(paste("Predicted + filtered results saved as:", temp.name))
-	} else {
-    temp.name <- gsub(format, "_other_species_prediction.rds", text.file.name)
-		saveRDS(result, file = temp.name)
-    print(paste("Predicted + filtered results saved as:", temp.name))
-	}
-
-  if (clearup.python) {
-    reticulate::py_run_string("
-import sys
-sys.modules[__name__].__dict__.clear()")
-    print("Python module cleared up.")
-  }
 }
 
 
