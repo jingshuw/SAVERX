@@ -8,7 +8,7 @@ saverx(text.file.name, data.species = c("Human", "Mouse", "Others"),
   use.pretrain = F, pretrained.weights.file = "",
   model.species = c("Human", "Mouse", "Joint"), model.nodes.ID = NULL,
   is.large.data = F, ncores = 1, verbose = F, batch_size = NULL,
-  ...)
+  clearup.python.session = T, ...)
 }
 \arguments{
 \item{text.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell. The rds file can either store the data as a regular matrix or a sparse matrix}
@@ -30,6 +30,8 @@ saverx(text.file.name, data.species = c("Human", "Mouse", "Others"),
 \item{verbose}{Whether to show more autoencoder optimization progress or not}
 
 \item{batch_size}{batch size of the autoencoder. Default is NULL, where the batch size is automatically determined by \code{max(number of cells / 50, 32)}}
+
+\item{clearup.python.session}{Whether to clear up everything in the Python session after computation or not. This clears up everything in Python, so you need to start a new R session to run \code{saverx} function again.}
 
 \item{...}{more arguments passed to \code{autoFilterCV}}
 }

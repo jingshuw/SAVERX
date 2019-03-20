@@ -4,7 +4,7 @@
 #' @param use.pretrain Use a pretrained model or not
 #' @param pretrained.weights.file If a pretrained model is used, provide the file storing the autoencoder model weights. It should have an extension of ".hdf5" and is the saved weights from the Python package \code{sctransfer}
 #' @param save.ori Whether save the original.file.name to a new file
-#' @param clearup.python Whether to clear up everything in the Python session after computation or not
+#' @param clearup.python.session Whether to clear up everything in the Python session after computation or not. This clears up everything in Python, so you need to start a new R session to run \code{saverx} function again.
 #' @param ... more arguments passed to \code{autoFilterCV}
 #' @param is.large.data If the data is very large, it may take too much RAM and setting this parameter to True can reduce RAM by writing intermediate Python ouput files to disk instead of directly passing it to R. However, setting this to True can increase the computation time
 #' @param batch_size batch size of the autoencoder. Default is NULL, where the batch size is automatically determined by \code{max(number of cells / 50, 32)}
@@ -18,7 +18,7 @@ computePrediction <- function(text.file.name,
 							  model.species = c("Human", "Mouse", "Joint"),
 							  model.nodes.ID = NULL,
                 is.large.data = F,
-                clearup.python = T,
+                clearup.python.session = T,
                 batch_size = NULL,
 							  ...) {
 	### inpute checking  ###
@@ -177,7 +177,7 @@ computePrediction <- function(text.file.name,
 		print(paste("Number of predictive genes is", sum(result$err.const > result$err.autoencoder)))
 	}
 
-  if (clearup.python) {
+  if (clearup.python.session) {
     reticulate::py_run_string("
 import sys
 sys.modules[__name__].__dict__.clear()")

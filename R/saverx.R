@@ -15,23 +15,24 @@ saverx <- function(text.file.name,
 				   model.nodes.ID = NULL,
            is.large.data = F,
 				   ncores = 1, 
-           verbose = F, batch_size = NULL, ...) {
+           verbose = F, batch_size = NULL, 
+           clearup.python.session = T, ...) {
 	
-  clearup.python <- T
+
 	if (use.pretrain) {
 		data.species <- match.arg(data.species, c("Human", "Mouse", "Others"))
 		model.species <- match.arg(model.species, c("Human", "Mouse", "Joint"))
     if (model.species == "Joint")
       model.species <- data.species
     if (use.pretrain && (data.species != model.species))
-      clearup.python <- F
+      clearup.python.session <- F
 	}
 
   computePrediction(text.file.name, data.species,
                     use.pretrain, pretrained.weights.file,
 					  model.species, model.nodes.ID, verbose = verbose,
             is.large.data = is.large.data, batch_size = batch_size,
-            clearup.python = clearup.python, ...)
+            clearup.python.session = clearup.python.session, ...)
 
 
   if (use.pretrain && (data.species != model.species)) {
