@@ -4,10 +4,10 @@
 \alias{computeShrinkage}
 \title{Wrapper function for the empirical Bayes shrinkage step}
 \usage{
-computeShrinkage(text.file.name, ncores = 1)
+computeShrinkage(out.dir, ncores = 1)
 }
 \arguments{
-\item{text.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell. The rds file can either store the data as a regular matrix or a sparse matrix}
+\item{out.dir}{a directory store all intemediate files. Can be generated automatically by this function is called by \code{computePrediction}}
 
 \item{ncores}{number of cores that can be used for the SAVER shrinkage}
 }

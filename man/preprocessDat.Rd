@@ -4,12 +4,16 @@
 \alias{preprocessDat}
 \title{Pre-process the data for SAVER-X}
 \usage{
-preprocessDat(text.file.name, data.species = c("Human", "Mouse",
-  "Others"), model.species = c("Human", "Mouse", "Joint"),
-  model.nodes.ID = NULL)
+preprocessDat(out.dir, input.file.name = NULL, data.matrix = NULL,
+  data.species = c("Human", "Mouse", "Others"),
+  model.species = c("Human", "Mouse", "Joint"), model.nodes.ID = NULL)
 }
 \arguments{
-\item{text.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell. The rds file can either store the data as a regular matrix or a sparse matrix}
+\item{out.dir}{a directory store all intemediate files. Can be generated automatically by this function is called by \code{computePrediction}}
+
+\item{input.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell, or can be NULL is \code{data.matrix} is provided. The rds file can either store the data as a regular matrix or a sparse matrix}
+
+\item{data.matrix}{a matrix of UMI counts. Should be NULL if input.file.name is provided. The matrix is gene by cell with gene and cell names. Can be either a regular or sparse matrix.}
 
 \item{data.species}{The species of the dataset}
 
@@ -18,8 +22,8 @@ preprocessDat(text.file.name, data.species = c("Human", "Mouse",
 \item{model.nodes.ID}{The vector of node IDs of the pretrained model (only needed for the species of the data when the pre-trained model is joint). Set to NULL if running SAVER-X without pretraining.}
 }
 \value{
-Do not return anything but generate a series of intermediate files in the same folder as \code{text.file.name}
+Do not return anything but generate a series of intermediate files in the \code{out.dir}
 }
 \description{
-Output and intemediate files are stored at the same directory as text.file.name. To avoid potential file name conflicts, please make the folder only contain text.file.name. DO NOT run two SAVER-X tasks for the data file in the same folder.
+Pre-process the data for SAVER-X
 }

@@ -4,14 +4,16 @@
 \alias{saverx}
 \title{the SAVERX function}
 \usage{
-saverx(text.file.name, data.species = c("Human", "Mouse", "Others"),
-  use.pretrain = F, pretrained.weights.file = "",
-  model.species = c("Human", "Mouse", "Joint"), model.nodes.ID = NULL,
-  is.large.data = F, ncores = 1, verbose = F, batch_size = NULL,
-  clearup.python.session = T, ...)
+saverx(input.file.name = NULL, data.matrix = NULL,
+  data.species = c("Human", "Mouse", "Others"), use.pretrain = F,
+  pretrained.weights.file = "", model.species = c("Human", "Mouse",
+  "Joint"), model.nodes.ID = NULL, is.large.data = F, ncores = 1,
+  verbose = F, batch_size = NULL, clearup.python.session = T, ...)
 }
 \arguments{
-\item{text.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell. The rds file can either store the data as a regular matrix or a sparse matrix}
+\item{input.file.name}{Can be either .txt, .csv or .rds files that store the data matrix gene by cell, or can be NULL is \code{data.matrix} is provided. The rds file can either store the data as a regular matrix or a sparse matrix}
+
+\item{data.matrix}{a matrix of UMI counts. Should be NULL if input.file.name is provided. The matrix is gene by cell with gene and cell names. Can be either a regular or sparse matrix.}
 
 \item{data.species}{The species of the dataset}
 
@@ -36,7 +38,7 @@ saverx(text.file.name, data.species = c("Human", "Mouse", "Others"),
 \item{...}{more arguments passed to \code{autoFilterCV}}
 }
 \value{
-the final denoised RDS data file saved in the same directory as the input data
+name of the final denoised RDS data file
 }
 \description{
 Output and intemediate files are stored at the same directory as the input data file \code{text.file.name}. To avoid potential file name conflicts, please make the folder only contain \code{text.file.name}. DO NOT run two SAVER-X tasks for the data file in the same folder.

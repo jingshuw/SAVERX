@@ -1,8 +1,8 @@
 Package: SAVERX
 Title: Transfer Learning for Single-cell RNA-seq Denoising
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: person("Jingshu", "Wang", email = "jingshuw@upenn.edu", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Denoise scRNA-seq data with models pre-trained with public data.
 Depends: R (>= 3.3.0)
 Imports: reticulate, SAVER, Matrix, methods
 License: GPL (>=2)

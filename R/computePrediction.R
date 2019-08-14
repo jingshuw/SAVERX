@@ -11,22 +11,33 @@
 #' 
 #' @return RDS file saved for the autoencoder prediction + filtering result
 #' @export
-computePrediction <- function(text.file.name, 
-							  data.species = c("Human", "Mouse", "Others"), 
-							  use.pretrain = F,
-							  pretrained.weights.file = "",
-							  model.species = c("Human", "Mouse", "Joint"),
-							  model.nodes.ID = NULL,
-                is.large.data = F,
-                clearup.python.session = T,
-                batch_size = NULL,
-							  ...) {
-	### inpute checking  ###
-	format <- strsplit(text.file.name, '[.]')[[1]]
-	format <- paste(".", format[length(format)], sep = "")
-	if (format != ".txt" && format != ".csv" && format != ".rds")
-		stop("Input file must be in .txt or .csv or .rds form", call.=FALSE)
-	print(paste("Input file is:", text.file.name))
+computePrediction <- function(out.dir,
+                              input.file.name = NULL,
+                              data.matrix = NULL,
+                              data.species = c("Human", "Mouse", "Others"), 
+                              use.pretrain = F,
+                              pretrained.weights.file = "",
+                              model.species = c("Human", "Mouse", "Joint"),
+                              model.nodes.ID = NULL,
+                              is.large.data = F,
+                              clearup.python.session = T,
+                              batch_size = NULL,
+                              ...) {
+	### inpute checking  ### 
+  if (is.null(input.file.name) && is.null(data.matrix))
+    stop("Either an input data file or an input matrix should be provided!")
+
+  if (!is.null(input.file.name) && !is.null(data.matrix))
+    stop("Only either an input data file or an input matrix should be provided!")
+
+  if (!is.null(input.file.name)) {
+    format <- strsplit(input.file.name, '[.]')[[1]]
+    format <- paste(".", format[length(format)], sep = "")
+    if (format != ".txt" && format != ".csv" && format != ".rds")
+      stop("Input file must be in .txt or .csv or .rds form", call.=FALSE)
+    print(paste("Input file is:", input.file.name))
+  } else
+    print("Input is a data matrix")
   if (use.pretrain)
     temp <- "Yes"
   else
@@ -51,11 +62,7 @@ computePrediction <- function(text.file.name,
 	}
 	######
 
-	### import Python module ###
-	sctransfer <- reticulate::import("sctransfer", convert = F)
-	main <- reticulate::import_main(convert = F)
-	print("Python module sctransfer imported ...")
-	######
+  dir.create(out.dir, showWarnings = F)
 
 	### preprocess data  ###
 	if (use.pretrain && is.null(model.nodes.ID)) {
@@ -67,18 +74,27 @@ computePrediction <- function(text.file.name,
 			model.nodes.ID <- mouse_nodes_ID
 		}
 	}
-	preprocessDat(text.file.name, 
+	preprocessDat(out.dir, input.file.name, 
+          data.matrix,
 				  data.species = data.species, 
 				  model.species = model.species, 
 				  model.nodes.ID = model.nodes.ID)
 	
 
-	out_dir <- strsplit(text.file.name, split = "/")[[1]]
-	out_dir <- paste(out_dir[-length(out_dir)], collapse = "/")
-	if (out_dir == "")
-		  out_dir <- "."
+#	out_dir <- strsplit(text.file.name, split = "/")[[1]]
+#	out_dir <- paste(out_dir[-length(out_dir)], collapse = "/")
+#	if (out_dir == "")
+#		  out_dir <- "."
 	print("Data preprocessed ...")
 	######
+
+	### import Python module ###
+	sctransfer <- reticulate::import("sctransfer", convert = F)
+	main <- reticulate::import_main(convert = F)
+	print("Python module sctransfer imported ...")
+	######
+
+
 
 	### run autoencoder ###
   if (is.large.data)
@@ -88,7 +104,7 @@ computePrediction <- function(text.file.name,
 
 	if (use.pretrain) {
 
-    data <- readRDS(gsub(format, "_temp.rds", text.file.name))
+    data <- readRDS(paste0(out.dir, "/tmpdata.rds"))
 
     est.mu <- Matrix::rowMeans(Matrix::t(Matrix::t(data$mat) / Matrix::colSums(data$mat)) * 10000)
 
@@ -104,20 +120,20 @@ computePrediction <- function(text.file.name,
     rm(data)
     gc()
 
-		x <- Matrix::readMM(gsub(format, ".mtx", text.file.name))
+		x <- Matrix::readMM(paste0(out.dir, "/tmpdata.mtx"))
     if (is.null(batch_size))
       batch_size <- as.integer(max(ncol(x) / 50, 32))
     else
       batch_size <- as.integer(batch_size)
 
-		nonmissing_indicator <- read.table(gsub(format, "_nonmissing.txt", text.file.name))$V1
+		nonmissing_indicator <- read.table(paste0(out.dir, "/tmpdata_nonmissing.txt"))$V1
     used.time <- system.time(result <- autoFilterCV(x, 
                                                     sctransfer,
                                                     main,
                                                     pretrain_file = pretrained.weights.file,
                                                     nonmissing_indicator = nonmissing_indicator, 
                                                     model.species = model.species, 
-                                                    out_dir = out_dir,
+                                                    out_dir = out.dir,
                                                     batch_size = batch_size,
                                                     write_output_to_tsv = write_output_to_tsv,
                                                     ...))
@@ -150,13 +166,13 @@ computePrediction <- function(text.file.name,
 #		est.mu[idx, ] <- result$x.autoencoder[ID.use[idx], ]
 		err.autoencoder[idx] <- result$err.autoencoder[ID.use[idx]]
     err.const[idx] <- result$err.const[ID.use[idx]]
-		try(file.remove(gsub(format, "_nonmissing.txt", text.file.name)))
-		try(file.remove(gsub(format, ".mtx", text.file.name)))
+		try(file.remove(paste0(out.dir, "tmpdata_nonmissing.txt")))
+		try(file.remove(paste0(out.dir, "tmpdata.mtx")))
  #   result$x.autoencoder <- est.mu
     result$err.autoencoder <- err.autoencoder
 		result$err.const <- err.const
 	} else {
-		data <- readRDS(gsub(format, "_temp.rds", text.file.name))
+		data <- readRDS(paste0(out.dir, "/tmpdata.rds"))
     if (is.null(batch_size))
       batch_size <- as.integer(max(ncol(data$mat) / 50, 32))
     else
@@ -165,7 +181,7 @@ computePrediction <- function(text.file.name,
 		used.time <- system.time(result <- autoFilterCV(data$mat, 
 												 sctransfer, 
 												 main,
-												 out_dir = out_dir,
+												 out_dir = out.dir,
                          batch_size = batch_size,
                          write_output_to_tsv = write_output_to_tsv, 
 												 ...))
@@ -186,22 +202,22 @@ sys.modules[__name__].__dict__.clear()")
 
   
   if (!use.pretrain || data.species == model.species) {
-    temp.name <- gsub(format, "_prediction.rds", text.file.name)
+    temp.name <- paste0(out.dir, "/prediction.rds")
 		saveRDS(result, file = temp.name)
     print(paste("Predicted + filtered results saved as:", temp.name))
 	} else {
-    temp.name <- gsub(format, "_other_species_prediction.rds", text.file.name)
+    temp.name <- paste0(out.dir, "/other_species_prediction.rds")
 		saveRDS(result, file = temp.name)
     print(paste("Predicted + filtered results saved as:", temp.name))
 	}
-  try(file.remove(paste0(out_dir, "/SAVERX_temp.mtx")))
-  try(file.remove(paste0(out_dir, "/SAVERX_temp_test.mtx")))
+  tmp <- suppressWarnings(file.remove(paste0(out.dir, "/SAVERX_temp.mtx")))
+  tmp <- suppressWarnings(file.remove(paste0(out.dir, "/SAVERX_temp_test.mtx")))
   if (is.large.data) {
-    try(file.remove(paste0(out_dir, "/SAVERX_temp_mean_norm.tsv")))
-    try(file.remove(paste0(out_dir, "/SAVERX_temp_pred_mean_norm.tsv")))
-    if (!use.pretrain)
-      try(file.remove(paste0(out_dir, "/SAVERX_temp_dispersion.tsv")))
+    tmp <- suppressWarnings(file.remove(paste0(out.dir, "/SAVERX_temp_mean_norm.tsv")))
+    tmp <- suppressWarnings(file.remove(paste0(out.dir, "/SAVERX_temp_pred_mean_norm.tsv")))
   }
+   if (!use.pretrain)
+      tmp <- suppressWarnings(file.remove(paste0(out.dir, "/SAVERX_temp_dispersion.tsv")))
 
 }
 
