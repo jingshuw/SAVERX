@@ -166,8 +166,8 @@ computePrediction <- function(out.dir,
 #		est.mu[idx, ] <- result$x.autoencoder[ID.use[idx], ]
 		err.autoencoder[idx] <- result$err.autoencoder[ID.use[idx]]
     err.const[idx] <- result$err.const[ID.use[idx]]
-		try(file.remove(paste0(out.dir, "tmpdata_nonmissing.txt")))
-		try(file.remove(paste0(out.dir, "tmpdata.mtx")))
+		tmp <- suppressWarnings(file.remove(paste0(out.dir, "/tmpdata_nonmissing.txt")))
+		tmp <- suppressWarnings(file.remove(paste0(out.dir, "/tmpdata.mtx")))
  #   result$x.autoencoder <- est.mu
     result$err.autoencoder <- err.autoencoder
 		result$err.const <- err.const
