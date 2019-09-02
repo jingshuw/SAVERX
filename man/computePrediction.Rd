@@ -34,8 +34,6 @@ computePrediction(out.dir, input.file.name = NULL, data.matrix = NULL,
 \item{batch_size}{batch size of the autoencoder. Default is NULL, where the batch size is automatically determined by \code{max(number of cells / 50, 32)}}
 
 \item{...}{more arguments passed to \code{autoFilterCV}}
-
-\item{save.ori}{Whether save the original.file.name to a new file}
 }
 \value{
 RDS file saved for the autoencoder prediction + filtering result

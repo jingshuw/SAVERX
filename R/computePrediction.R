@@ -3,7 +3,6 @@
 #' @inheritParams preprocessDat
 #' @param use.pretrain Use a pretrained model or not
 #' @param pretrained.weights.file If a pretrained model is used, provide the file storing the autoencoder model weights. It should have an extension of ".hdf5" and is the saved weights from the Python package \code{sctransfer}
-#' @param save.ori Whether save the original.file.name to a new file
 #' @param clearup.python.session Whether to clear up everything in the Python session after computation or not. This clears up everything in Python, so you need to start a new R session to run \code{saverx} function again.
 #' @param ... more arguments passed to \code{autoFilterCV}
 #' @param is.large.data If the data is very large, it may take too much RAM and setting this parameter to True can reduce RAM by writing intermediate Python ouput files to disk instead of directly passing it to R. However, setting this to True can increase the computation time

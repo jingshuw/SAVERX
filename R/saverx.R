@@ -42,7 +42,7 @@ saverx <- function(input.file.name = NULL,
   if (use.pretrain && (data.species != model.species)) {
     print("For cross-species training, compute another round with no pre-pretraining model ...")
     computePrediction(task.id, input.file.name, data.matrix, data.species, 
-                      use.pretrain = F, save.ori = F, verbose = verbose, 
+                      use.pretrain = F, verbose = verbose, 
                       batch_size = batch_size, 
                       is.large.data = is.large.data, ...)
   }		
