@@ -66,6 +66,7 @@ autoencode <- function(x,
   } else
     test_mtx_file <- NULL
 
+
   if (!pretrain)
     main$result <- api$autoencode(mtx_file = mtx_file,
                                   pred_mtx_file = test_mtx_file,
@@ -88,6 +89,7 @@ autoencode <- function(x,
                                   batch_size = batch_size,
                                   write_output_to_tsv = write_output_to_tsv, 
                                   ...)
+
   if (!write_output_to_tsv) {
     x.autoencoder <- t(reticulate::py_to_r(main$result$obsm[['X_dca']]))
     colnames(x.autoencoder) <- cnames

@@ -57,6 +57,8 @@ preprocessDat <- function(out.dir,
     rm(data.matrix)
   }
 
+  ## remove cells that has 0 total UMI
+  dat <- dat[, Matrix::colSums(dat) > 0, drop = F]
 
   if (is.null(model.nodes.ID)) {
     dat <- list(mat = dat)
