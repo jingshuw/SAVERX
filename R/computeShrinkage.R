@@ -52,15 +52,15 @@ computeShrinkage <- function(out.dir, ncores = 1,
 			sf <- Matrix::colSums(data$mat)
 			sf <- sf / mean(sf)
 			rd <- ceiling(ngenes / gene.block.size)
-			x.autoencoder.saver <- SAVER::saver(data$mat[1:10000, ],
-												 mu = est.mu[1:10000, ]
+			x.autoencoder.saver <- SAVER::saver(data$mat[1:gene.block.size, ],
+												 mu = est.mu[1:gene.block.size, ],
 												 size.factor = sf, ncores = ncores)
 			x.autoencoder.saver$info <- NULL
 			for (r in 2:rd) {
 				i.start <- (r - 1) * gene.block.size + 1
 			    i.end <- min(r * gene.block.size, ngenes)	
 				temp <- SAVER::saver(data$mat[i.start:i.end, ],
-									 mu = est.mu[i.start:i.end, ]
+									 mu = est.mu[i.start:i.end, ],
 									 size.factor = sf, ncores = ncores)
 				x.autoencoder.saver$estimate <- rbind(x.autoencoder.saver$estimate, temp$estimate)
 				x.autoencoder.saver$se <- rbind(x.autoencoder.saver$se, temp$se)
