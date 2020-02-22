@@ -45,8 +45,8 @@ computeShrinkage <- function(out.dir, ncores = 1,
 	######
 
 	### run SAVER shrinkage ###
-	ncells <- Matrix::ncol(data$mat)
-	ngenes <- Matrix::nrow(data$mat)
+	ncells <- ncol(data$mat)
+	ngenes <- nrow(data$mat)
 	if (ncores > 1 && ngenes > gene.block.size && ncells > cell.threshold && auto.split) {
 		used.time <- system.time({
 			sf <- Matrix::colSums(data$mat)
