@@ -2,10 +2,14 @@
 #'
 #' @inheritParams preprocessDat
 #' @param ncores number of cores that can be used for the SAVER shrinkage
+#' @param gene.block.size number of genes in one block if auto.split = T
+#' @param cell.threshold the minimum threshold of the size of data for considering auto split
+#' @param whether perform auto.split or not for the gateway RM-shared partition
 #' 
 #' @return RDS saved for the final denoised results
 #' @export
-computeShrinkage <- function(out.dir, ncores = 1) {
+computeShrinkage <- function(out.dir, ncores = 1, 
+							 gene.block.size = 10000, cell.threshold = 20000, auto.split = T) {
 
 	### check input ###
 #	format <- strsplit(text.file.name, '[.]')[[1]]
@@ -41,8 +45,30 @@ computeShrinkage <- function(out.dir, ncores = 1) {
 	######
 
 	### run SAVER shrinkage ###
-	used.time <- system.time(x.autoencoder.saver <- SAVER::saver(data$mat, mu = est.mu, 
-																 ncores = ncores))
+	ncells <- Matrix::ncol(data$mat)
+	ngenes <- Matrix::nrow(data$mat)
+	if (ncores > 1 && ngenes > gene.block.size && ncells > cell.threshold && auto.split) {
+		used.time <- system.time({
+			sf <- Matrix::colSums(data$mat)
+			sf <- sf / mean(sf)
+			rd <- ceiling(ngenes / gene.block.size)
+			x.autoencoder.saver <- SAVER::saver(data$mat[1:10000, ],
+												 mu = est.mu[1:10000, ]
+												 size.factor = sf, ncores = ncores)
+			x.autoencoder.saver$info <- NULL
+			for (r in 2:rd) {
+				i.start <- (r - 1) * gene.block.size + 1
+			    i.end <- min(r * gene.block.size, ngenes)	
+				temp <- SAVER::saver(data$mat[i.start:i.end, ],
+									 mu = est.mu[i.start:i.end, ]
+									 size.factor = sf, ncores = ncores)
+				x.autoencoder.saver$estimate <- rbind(x.autoencoder.saver$estimate, temp$estimate)
+				x.autoencoder.saver$se <- rbind(x.autoencoder.saver$se, temp$se)
+			}
+		}) 
+	} else
+		used.time <- system.time(x.autoencoder.saver <- SAVER::saver(data$mat, mu = est.mu, 
+																	 ncores = ncores))
 	print(paste("Empirical Bayes shrinkage total computing time is:", used.time[3], "seconds"))
 	x.autoencoder.saver$est.before.shrinkage <- est.mu
 	x.autoencoder.saver$predictable <- pred
