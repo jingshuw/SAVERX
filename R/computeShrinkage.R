@@ -51,7 +51,7 @@ computeShrinkage <- function(out.dir, ncores = 1,
 	if (ncores > 1 && ngenes > gene.block.size && ncells > cell.threshold && auto.split) {
 		used.time <- system.time({	
 			system(paste0('mv ', out.dir, '/prediction.rds ', out.dir, '/denoised_est_before_shrinkage.rds'))
-			system(paste0('rm ', out.dir, '/prediction.rds'))
+			suppressWarnings(system(paste0('rm ', out.dir, '/prediction.rds')))
 			Sys.sleep(60)
 			#	saveRDS(est.mu, paste0(temp.name, "_est_before_shrinkage.rds"))
 			sf <- Matrix::colSums(data$mat)
