@@ -47,35 +47,42 @@ computeShrinkage <- function(out.dir, ncores = 1,
 	### run SAVER shrinkage ###
 	ncells <- ncol(data$mat)
 	ngenes <- nrow(data$mat)
+    temp.name <- paste0(out.dir, "/denoised")
 	if (ncores > 1 && ngenes > gene.block.size && ncells > cell.threshold && auto.split) {
-		used.time <- system.time({
+		used.time <- system.time({	
+			saveRDS(est.mu, paste0(temp.name, "_est_before_shrinkage.rds"))
 			sf <- Matrix::colSums(data$mat)
 			sf <- sf / mean(sf)
 			rd <- ceiling(ngenes / gene.block.size)
 			x.autoencoder.saver <- SAVER::saver(data$mat[1:gene.block.size, ],
 												 mu = est.mu[1:gene.block.size, ],
 												 size.factor = sf, ncores = ncores)
+			x.autoencoder.saver$predictable <- pred[1:gene.block.size]
+			saveRDS(x.autoencoder.saver, paste0(temp.name, "_1_", gene.block.size, ".rds"))
 			x.autoencoder.saver$info <- NULL
 			for (r in 2:rd) {
 				i.start <- (r - 1) * gene.block.size + 1
 			    i.end <- min(r * gene.block.size, ngenes)	
-				temp <- SAVER::saver(data$mat[i.start:i.end, ],
+				x.autoencoder.saver <- SAVER::saver(data$mat[i.start:i.end, ],
 									 mu = est.mu[i.start:i.end, ],
 									 size.factor = sf, ncores = ncores)
-				x.autoencoder.saver$estimate <- rbind(x.autoencoder.saver$estimate, temp$estimate)
-				x.autoencoder.saver$se <- rbind(x.autoencoder.saver$se, temp$se)
+				x.autoencoder.saver$predictable <- pred[i.start, i.end]
+				saveRDS(x.autoencoder.saver, paste0(temp.name, "_", i.start, "_", i.end, ".rds"))	
+				print(paste("Final denoised results saved as:", paste0(temp.name, "_*.rds")))
 			}
 		}) 
-	} else
-		used.time <- system.time(x.autoencoder.saver <- SAVER::saver(data$mat, mu = est.mu, 
-																	 ncores = ncores))
+	} else { 
+		used.time <- system.time({
+			x.autoencoder.saver <- SAVER::saver(data$mat, mu = est.mu, 
+												ncores = ncores)
+
+			x.autoencoder.saver$est.before.shrinkage <- est.mu
+			x.autoencoder.saver$predictable <- pred
+			saveRDS(x.autoencoder.saver, paste0(temp.name, ".rds"))
+			print(paste("Final denoised results saved as:", paste0(temp.name, ".rds")))
+		})
+	}
 	print(paste("Empirical Bayes shrinkage total computing time is:", used.time[3], "seconds"))
-	x.autoencoder.saver$est.before.shrinkage <- est.mu
-	x.autoencoder.saver$predictable <- pred
-#	mat <- x.autoencoder.saver$estimate
-  temp.name <- paste0(out.dir, "/denoised.rds")
-	saveRDS(x.autoencoder.saver, temp.name)
-  print(paste("Final denoised results saved as:", temp.name))
 
 	tmp <- suppressWarnings(file.remove(paste0(out.dir, "/prediction.rds")))
 	tmp <- suppressWarnings(file.remove(paste0(out.dir, "/other_species_prediction.rds")))
