@@ -58,7 +58,7 @@ computeShrinkage <- function(out.dir, ncores = 1,
 												 mu = est.mu[1:gene.block.size, ],
 												 size.factor = sf, ncores = ncores)
 			x.autoencoder.saver$predictable <- pred[1:gene.block.size]
-			saveRDS(x.autoencoder.saver, paste0(temp.name, "_1_", gene.block.size, ".rds"))
+			saveRDS(x.autoencoder.saver, paste0(temp.name, "_genes_1_", gene.block.size, ".rds"))
 			x.autoencoder.saver$info <- NULL
 			for (r in 2:rd) {
 				i.start <- (r - 1) * gene.block.size + 1
@@ -66,8 +66,8 @@ computeShrinkage <- function(out.dir, ncores = 1,
 				x.autoencoder.saver <- SAVER::saver(data$mat[i.start:i.end, ],
 									 mu = est.mu[i.start:i.end, ],
 									 size.factor = sf, ncores = ncores)
-				x.autoencoder.saver$predictable <- pred[i.start, i.end]
-				saveRDS(x.autoencoder.saver, paste0(temp.name, "_", i.start, "_", i.end, ".rds"))	
+				x.autoencoder.saver$predictable <- pred[i.start:i.end]
+				saveRDS(x.autoencoder.saver, paste0(temp.name, "_genes_", i.start, "_", i.end, ".rds"))	
 				print(paste("Final denoised results saved as:", paste0(temp.name, "_*.rds")))
 			}
 		}) 
