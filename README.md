@@ -3,6 +3,8 @@
 R package for transfer learning of scRNA-seq denoising. Take a look at our free [SAVER-X web-server](https://singlecell.wharton.upenn.edu/saver-x/) for the transfer learning online computation! We also encourage you to read our [pre-print manucript](https://www.biorxiv.org/content/10.1101/457879v2) for more information. You can also refer to our earlier denoising method [SAVER](http://github.com/mohuangx/SAVER).
 
 ## Updates
+06/13/2022: update sctransfer Python package for version control of dependent packages tensorflow and keras. Fix bugs in using the newest version of scanpy. 
+
 11/12/2019: fix the bug in SAVER-X by requiring the reticulate package to be updated to version 1.13 
 
 8/14/2019: SAVER-X now accepts either a data file or a matrix object in R as input, and creates a new folder under current working directory to store intemediate and final results. It returns the file name storing the denoised results.
@@ -27,6 +29,7 @@ Our current pre-trained models can be downloaded [here](https://www.dropbox.com/
 
 Our input can be either a data file or a dense/sparse matrix. The data file can be '.txt', '.csv' or '.rds' file. The '.rds' file can store either a matrix or a sparse matrix of class 'dgCMatrix'. 
 As a toy example, you may download one of our demo datasets on the web server, shekhar_downsampled.csv, the down-sampled mouse retina data from [here](https://www.dropbox.com/s/z8jc0of3w3b261x/shekhar_downsampled.csv?dl=0). SAVER-X will generate a new folder based on the current time to store intemediate files and final results and return the file name storing the denoised matrix. 
+
 ### SAVER-X without pretraining
 
 ```
@@ -46,3 +49,4 @@ denoised.data <- readRDS(file)
 
 For both cases, object 'denoised.data' is your final denoised matrix. When dealing with large datasets, you can set 'is.large.data = T' to reduce RAM. Set 'clearup.python.session = F' if you plan to run SAVER-X more than once in your R session. 
 
+Note: We use R package reticulate to run Python code in R. You may find solutions in this [reference](https://rstudio.github.io/reticulate/articles/versions.html) if you face any issues in Python version configuration in reticulate. 
